@@ -1,8 +1,10 @@
-# People Companies
-Analyzing Company Emails to Identify Trends in Employee Morale
+# Getting Ahead of the Headline | Enron Topic Modeling
+Analyzing employee emails using Natural Language Processing, Sentiment Analysis, and Time Series Analysis
 
 # Project Description
-For this project we are building an morale sentiment scoring model. We are working with Enron employee email data from [insert date range] and exploring trends in morale as the company was collapsing by analyzing sentiment scores. 
+<p>In this unsupervised machine learning project we are exploring and analyzing Enron employee emails. We are using topic modeling, sentiment analysis, and time series analysis to identify trends in communication themes over time. For our MVP we are looking at a corpus of 5,575 emails sent by people of interest, as identified by the official congressional report on the role of Enron's board of directors (https://bit.ly/3Hjz5rI) on the collapse of the company. 
+
+<p>Our initial hypothesis is that there will be uniquely identifiable trends in email topics over time and that organizations will be able to use our analysis to identify key themes in communication between persons of interest in the early stages of investigating suspicious organizational activity.
 
 ## Background
 [insert Enron blurb here]
