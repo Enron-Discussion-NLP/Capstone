@@ -1,7 +1,7 @@
 # Getting Ahead of the Headline 
 Analyzing employee emails using Natural Language Processing, Sentiment Analysis, and Time Series Analysis<br>
 
-![](00_Stephanie/images/project_teaser.png)
+![](00_Stephanie/images/0_header.png)
 Enron Topic Modeling | Codeup, Hopper Cohort | March 2022<br><br>
 >Paige Guajardo<br>
 Rajaram Gautam<br>
@@ -39,7 +39,7 @@ variable | dtype | description
 `is_internal` | bool | True == email was sent from Enron address
 
 ## Person of Interest
-Using [this article]() from _________ we identified xX people as persons of interest because __________. 
+Using the text from the Congressional investigation report, we identified key people of interest at Enron, linked to the investigation. (see citation below for report). 
 Name | Connection to Enron | Enron Investigation
 :-- | :-- | :---
 Name | Role at Enron | Investigated/indicted/fired
