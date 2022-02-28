@@ -35,7 +35,7 @@ variable | dtype | description
 `intensity` | float | vader sentiment intensity analyzer score
 `polarity` | float | measure of email sentiment, -1 (neg) to 1 (pos)
 `subjectivity` | float | measure of email subjectivity, 0 (obj), 1 (sub)
-`poi` | bool | True == Person of Interest, someone connected to investigation (more on this below)
+`poi` | bool | is person directly connected to investigation
 `is_internal` | bool | True == email was sent from Enron address
 
 ## Person of Interest
