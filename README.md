@@ -13,12 +13,12 @@ Kaniela Denis<br><br>
 <p>In this unsupervised machine learning project we are exploring and analyzing Enron employee emails. We are using topic modeling, sentiment analysis, and time series analysis to identify trends in communication themes over time. For our MVP we are looking at a corpus of 5,575 emails sent by people of interest, as identified by the official congressional report on the role of Enron's board of directors (https://bit.ly/3Hjz5rI) on the collapse of the company. 
 
 ## Initial Hypothesis
-<p>Our initial hypothesis is that there will be distinct trends in email topics and sentiment over time. 
+Our initial hypothesis is that there will be distinct trends in email topics and sentiment over time. 
 
 ## Background
-<p>Enron Corporation was a major American energy, commodities, and services company that declared bankruptcy in December 2001 after over a decade of fraudulent accounting practices. During an error of more lenient financial regulations and high market speculation, Enron hid its financial losses in special purposes entities, making it appear much more profitable on paper than it actually was.
+Enron Corporation was a major American energy, commodities, and services company that declared bankruptcy in December 2001 after over a decade of fraudulent accounting practices. During an error of more lenient financial regulations and high market speculation, Enron hid its financial losses in special purposes entities, making it appear much more profitable on paper than it actually was.
 <br><br>
-<p>Enron has become synonymous with willful corporate fraud and corruption. The scandal also brought into question the accounting practices and activities of many corporations in the United States and was a factor in the enactment of the Sarbanes-Oxley Act of 2002. The scandal also affected the greater business world by causing the dissolution of the Arthur Andersen accounting firm, which had been Enron's main auditor for years.
+Enron has become synonymous with willful corporate fraud and corruption. The scandal also brought into question the accounting practices and activities of many corporations in the United States and was a factor in the enactment of the Sarbanes-Oxley Act of 2002. The scandal also affected the greater business world by causing the dissolution of the Arthur Andersen accounting firm, which had been Enron's main auditor for years.
 
 ## Business Goal
 Company leaders, lawmakers, and the public will be able to use our analysis to identify key themes in communication between persons of interest in the early stages of investigating suspicious organizational activity. 
@@ -61,21 +61,47 @@ Data source: [Kaggle](https://www.kaggle.com/wcukierski/enron-email-dataset), Wi
 6. Were there any unique themes by year?
 
 ## Modeling
-We used the following three algorithms to determine sentiment scores:
-1.  `sentiment__` for sentiment
-2. `textblob` for polarity and subjectivity
-
-We used the `BERTopic` algorithm for topic modeling. 
-1. We first looked at common topics for all emails from persons of interest from xXXX to xXXXX years. 
-2. Next we looked at topics by year. 
+We used the `BERTopic` algorithm for topic modeling and looked at common topics for all emails from persons of interest by year, from 2000 to 2002. Initially, we planned to include 1999 but there were not enough emails for that year to generate topics from this algorithm. 
 
 ## Conclusions
 
 # Steps to Recreate
-Read this README.md file<br>
-Ensure you have latest version of Python installed<br>
-Install and Import Python Libraries:
-- Pandas
-- Numpy
+1. Read this README.md file<br>
+2. Ensure you have latest version of Python installed<br>
+3. Read email corpus to DataFrame (see link in citation below)<br>
+4. Install and Import Python Libraries:
 
+Library | Import Code | Documentation
+:-- | :-- | :-- 
+Pandas | `import pandas as pd` | https://pandas.pydata.org/docs/
+Numpy | `import numpy as np` | https://numpy.org/doc/ 
+email.parser | `from email.parser import Parser` | https://docs.python.org/3/library/email.parser.html
+datetime | `import date_time` | https://docs.python.org/3/library/datetime.html
+Vader, Sentiment Analysis | `from nltk.sentiment.vader import SentimentIntensityAnalyzer` | https://www.nltk.org/_modules/nltk/sentiment/vader.html 
+Textblob, Sentiment Analysis | `from textblob import TextBlob` | https://pypi.org/project/textblob/
+Bertopic, Topic Modeling | `from bertopic import BERTopic` | https://pypi.org/project/bertopic/
+
+# References and Citations
+Bert topic model:
+>@misc{grootendorst2020bertopic,
+  author       = {Maarten Grootendorst},
+  title        = {BERTopic: Leveraging BERT and c-TF-IDF to create easily interpretable topics.},
+  year         = 2020,
+  publisher    = {Zenodo},
+  version      = {v0.9.4},
+  doi          = {10.5281/zenodo.4381785},
+  url          = {https://doi.org/10.5281/zenodo.4381785}
+}
+
+Wikipedia 
+>- [Enron](https://en.wikipedia.org/wiki/Enron)
+>- [Enron Scandal](https://en.wikipedia.org/wiki/Enron_scandal)
+>- [Enron Corpus](https://en.wikipedia.org/wiki/Enron_Corpus)
+>- [California Energy Crisis, 2000-2001](https://en.wikipedia.org/wiki/2000%E2%80%9301_California_electricity_crisis)
+
+Data Source
+>Will Cukierski, [Kaggle](https://www.kaggle.com/wcukierski/enron-email-dataset) (2015, May)
+
+Congressional Report on the Role of Enron Board of Directors in Enron's Collapse 
+>https://www.govinfo.gov/content/pkg/CPRT-107SPRT80393/html/CPRT-107SPRT80393.htm
 
