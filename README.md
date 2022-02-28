@@ -32,7 +32,7 @@ variable | dtype | description
 `subject` | object | text of email subject
 `content` | object | raw email content
 `lemmatize` | object | cleaned and lemmatized email content
-`sentiment` | float | sentiment score
+`intensity` | float | vader sentiment intensity analyzer score
 `polarity` | float | measure of email sentiment, -1 (neg) to 1 (pos)
 `subjectivity` | float | measure of email subjectivity, 0 (obj), 1 (sub)
 `poi` | bool | True == Person of Interest, someone connected to investigation (more on this below)
@@ -64,6 +64,15 @@ Data source: [Kaggle](https://www.kaggle.com/wcukierski/enron-email-dataset), Wi
 We used the `BERTopic` algorithm for topic modeling and looked at common topics for all emails from persons of interest by year, from 2000 to 2002. Initially, we planned to include 1999 but there were not enough emails for that year to generate topics from this algorithm. 
 
 ## Conclusions
+If we had more time:
+- Scale x3 sentiment scores
+- Explore Nulls
+- Explore Word Frequency Analysis with Email Subject
+- Explore email recipients
+- Explore and model with non-POI and POI emails (not just POI)
+- Bin intensity, polarity, and subjectivity scores
+- Explore clustering with the three different measures for sentiment
+- Explore variables related to persons of interest, such as tenure with the company, salary, and investigation outcome
 
 # Steps to Recreate
 1. Read this README.md file<br>
