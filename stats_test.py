@@ -6,15 +6,14 @@ import numpy as np
 
 
 
-def stats_t_test_1tail_2sample_senti():
-    
+def stats_t_test_1tail_2sample_inten():
     """
-    This function do t-test for 1 tail with 2 samples for sentiment.
+    This function do t-test for 1 tail with 2 samples for intensity.
     """
-    # creating series for sentiments for 2000 and 2001
-    year_2000 = df[df.year_2000 == True].sentiment
-    year_2001 = df[df.year_2000 == False].sentiment
-    t, p = stats.ttest_ind(sentiment_2000, sentiment_2001, equal_var= False)
+    # creating series for intensitys for 2000 and 2001
+    year_2000 = poi_df[poi_df.year_2000 == True].intensity
+    year_2001 = poi_df[poi_df.year_2000 == False].intensity
+    t, p = stats.ttest_ind(year_2000, year_2001, equal_var= False)
 
     t, p/2, α
     
@@ -28,8 +27,8 @@ def stats_t_test_1tail_2sample_senti_pola():
     This function do t-test for 1 tail with 2 samples for polarity.
     """
     # creating series for polaritys for 2000 and 2001
-    year_2000 = df[df.year_2000 == True].polarity
-    year_2001 = df[df.year_2000 == False].polarity
+    year_2000 = poi_df[poi_df.year_2000 == True].polarity
+    year_2001 = poi_df[poi_df.year_2000 == False].polarity
     t, p = stats.ttest_ind(year_2000, year_2001, equal_var= False)
 
     t, p/2, α
@@ -39,13 +38,13 @@ def stats_t_test_1tail_2sample_senti_pola():
     else:
         print('We fail to reject the null hypothesis')
         
-def stats_t_test_1tail_2sample_senti_sub():
+def stats_t_test_1tail_2sample_sub():
     """
     This function do t-test for 1 tail with 2 samples for subjectivity.
     """
     # creating series for subjectivitys for 2000 and 2001
-    year_2000 = df[df.year_2000 == True].subjectivity
-    year_2001 = df[df.year_2000 == False].subjectivity
+    year_2000 = poi_df[poi_df.year_2000 == True].subjectivity
+    year_2001 = poi_df[poi_df.year_2000 == False].subjectivity
     t, p = stats.ttest_ind(year_2000, year_2001, equal_var= False)
 
     t, p/2, α
@@ -54,4 +53,4 @@ def stats_t_test_1tail_2sample_senti_sub():
         print('We reject the null hypothesis')
     else:
         print('We fail to reject the null hypothesis')
-        
+
