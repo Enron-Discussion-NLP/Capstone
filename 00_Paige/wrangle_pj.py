@@ -36,6 +36,8 @@ def acquire_emails():
 
     bodies = []
     dates = []
+    senders = []
+    subjects = []
 
     # loop through email messages
     for i in df.message:
@@ -45,17 +47,37 @@ def acquire_emails():
         body = headers.get_payload()
         # get the date from email
         date = headers['Date']
-        # append date and body text to lists
+        # get sender of email
+        sender = headers['From']
+        # get email subject
+        subject = headers['Subject']
+        # append date, body, sender, subjectg text to lists
         bodies.append(body)
         dates.append(date)
+        senders.append(sender)
+        subjects.append(subject)
 
     # Set lists to dataframes
     body_df = pd.DataFrame(bodies, columns = ['Content'])
-    dates_df = pd.DataFrame(dates, columns = ['Content'])
+    dates_df = pd.DataFrame(dates, columns = ['Date'])
+    senders_df = pd.DataFrame(senders, columns = ['Sender'])
+    subjects_df = pd.DataFrame(subjects, columns = ['Subject'])
 
-    # Insert those data frames into our orignal dataframe
-    df.insert(1, "content", body_df)
-    df.insert(1, "date", dates_df)
+    # Create a series of those colums
+    content = body_df['Content']
+    dates = dates_df['Date']
+    send = senders_df['Sender']
+    subj = subjects_df['Subject']
+
+    # Insert those seriess into our orignal dataframe and create those columns
+    df.insert(1, "content", content)
+    df.insert(1, "date", dates)
+    df.insert(1, "sender", send)
+    df.insert(1, "subject", subj)
+
+    # drop message 
+    df = df.drop(columns = ['message'])
+
     return df
 
 # ---------------------------------------------------------------
@@ -66,10 +88,15 @@ def basic_clean(string):
     This function takes in a string and
     returns the string normalized.
     '''
+    string = string.lower()
+    string = string.strip()
+    string = string.replace('\n', ' ')
+    string = string.replace('\t', ' ')
+    string = string.replace('\r', ' ')
     string = unicodedata.normalize('NFKD', string)\
             .encode('ascii', 'ignore')\
             .decode('utf-8', 'ignore')
-    string = re.sub(r'[^\w\s]', '', string).lower()
+    string = re.sub(r"[^a-z0-9'\s]", "", string)
     return string
 
 # ---------------------------------------------------------------
@@ -155,38 +182,36 @@ def clean_emails(df, column = 'content'):
     Creates DF with cleaned version of emails/ stem version of clean emails / lemetized versions of clean emails
     '''
     
-    if os.path.isfile('emails.csv'):
-        df = pd.read_csv('emails.csv')
+    #if os.path.isfile('emails.csv'):
+    #    df = pd.read_csv('emails.csv')
     
-    else:
-        df['clean'] = df[column].apply(basic_clean)\
-                        .apply(tokenize)\
-                        .apply(stem)
+    #else:
+    df['clean'] = df[column].apply(basic_clean)\
+                    .apply(tokenize)\
+                    .apply(stem)
 
-        df['tokenize'] = df[column].apply(basic_clean)\
-                        .apply(tokenize)
+    df['tokenize'] = df[column].apply(basic_clean)\
+                    .apply(tokenize)
                 
-        df['stop_words'] = df[column].apply(basic_clean)\
-                        .apply(tokenize)\
-                        .apply(remove_stopwords)
+    df['stop_words'] = df[column].apply(basic_clean)\
+                    .apply(tokenize)\
+                    .apply(remove_stopwords)
 
-        df['stemm'] = df[column].apply(basic_clean)\
-                        .apply(tokenize)\
-                        .apply(remove_stopwords)\
-                        .apply(stem)
+    df['stemm'] = df[column].apply(basic_clean)\
+                    .apply(tokenize)\
+                    .apply(remove_stopwords)\
+                    .apply(stem)
 
-        df['lemmatize'] = df[column].apply(basic_clean)\
-                        .apply(tokenize)\
-                        .apply(remove_stopwords)\
-                        .apply(lemmatize)
+    df['lemmatize'] = df[column].apply(basic_clean)\
+                    .apply(tokenize)\
+                    .apply(remove_stopwords)\
+                    .apply(lemmatize)
 
-        df.to_csv('clean_emails.csv')
+    #df.to_csv('clean_emails.csv')
     return df
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
-
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
@@ -204,6 +229,12 @@ def sentiment_scores(string):
     polarity, subjectivity = TextBlob(str(string)).sentiment
     
     return polarity, subjectivity
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+
+
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------    
 
 # function to add textblob sentiment scores to df
 def add_scores(df, clean_msg_col):
@@ -247,9 +278,81 @@ def create_scores(df):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
+def create_poi_column(df):
+
+    # creating poi list
+    poi = ['andrew.fastow@enron.com',
+    'richard.causey@enron.com',
+    'rick.buy@enron.com',
+    'ben.glisan@enron.com',
+    'mary.joyce@enron.com',
+    'jeff.skilling@enron.com',
+    'jeffreyskilling@yahoo.com',
+    'ronniechan@hanglung.com',
+    'jhduncan@aol.com',
+    'wgramm@aol.com',
+    'wgramm@gmu.edu',
+    'kenneth.lay@enron.com',
+    'ken.lay-@enron.com',
+    'ken.lay@enron.com',
+    'ken.lay-.chairman.of.the.board@enron.com',
+    'kevin_a_howard.enronxgate.enron@enron.net',
+    'michael.krautz@enron.com',
+    'rex.shelby@enron.com',
+    'rex_shelby@enron.net',
+    'james.brown@enron.com',
+    'christopher.calger@enron.com',
+    'tim.despain@enron.com',
+    'kevin.hannon@enron.com',
+    'mark.koenig@enron.com',
+    'john.forney@enron.com',
+    'ken.rice@enron.com',
+    'ken_rice@enron.net',
+    'paula.rieker@enron.com',
+    'david.delainey@enron.com',
+    'dave.delainey@enron.com',
+    'jeff.richter@enron.com',
+    'tim.belden@enron.com',
+    'raymond.bowen@enron.com',
+    'wes.colwell@enron.com',
+    'dan.boyle@enron.com']
+
+    df['poi'] = np.where(df.sender.isin(poi), True, False)
+    return df
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+
+def create_internal_column(df):
+    #internal = df[df.sender.str.contains('@enron.com')]
+    df['internal'] = np.where(df.sender.str.contains('@enron.com'), True, False)
+
+    return df
+
+
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+# Creates base data frame with all these columns (date | content | clean | tokenize | stop_wards | stemm | lemmatize | intensity | subjectivity | polarity)
+def create_topic_df():
+    df = acquire_emails()
+
+    # Clean Data base to (date | content | clean | tokenize | stop_wards | stemm | lemmatize)
+    df = clean_emails(df)
+
+    # Creates dataframe with added (intensity | subjectivity | polarity) columns
+    df = create_scores(df)
+
+    df = create_poi_column(df)
+
+    df = create_internal_column(df)
+
+    return df
+
+
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
 # Creates Time Series Data Frame after all the changes
 def create_time_series_df(df):
-    df = df.drop(columns = ['file', 'message', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize', 'stemm'])
+    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize', 'stemm'])
 
     df.date = pd.to_datetime(df.date, utc=True)
 
@@ -259,18 +362,33 @@ def create_time_series_df(df):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
+def time_series_df_final(df):
+    df['year'] = df.index.year
+    df['month'] = df.index.month
+
+    df = df[df.year < 2003]
+    df = df[df.year > 1998]
+    
+    return df    
+
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
 # Uses all the functions and creates 2 dataframes for usage on topic modeling and time series analysis
 def create_dataframes_wrangle():
     # Acquire Emails
-    df = acquire_emails()
-
-    # Clean Data base to (date | content | clean | tokenize | stop_wards | stemm | lemmatize)
-    df = clean_emails(df)
-
-    # Creates dataframe with added (intensity | subjectivity | polarity) columns
-    df = create_scores(df)
+    df = create_topic_df()
 
     # use the df and create the time series dataframe!
     time_series_df = create_time_series_df(df)
 
+    # sets the time_series dataframe with columns (intensity | polarity | subjectivity | year | month) and sets to the years 1999 and 2002
+    time_series_df = time_series_df_final(time_series_df)
     return df, time_series_df
+
+
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+
+
+
+
