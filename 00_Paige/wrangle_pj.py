@@ -197,11 +197,12 @@ def clean_emails(df, column = 'content'):
                     .apply(tokenize)\
                     .apply(remove_stopwords)
 
+    '''
     df['stemm'] = df[column].apply(basic_clean)\
                     .apply(tokenize)\
                     .apply(remove_stopwords)\
                     .apply(stem)
-
+    '''
     df['lemmatize'] = df[column].apply(basic_clean)\
                     .apply(tokenize)\
                     .apply(remove_stopwords)\
@@ -331,11 +332,11 @@ def create_internal_column(df):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-# Creates base data frame with all these columns (date | content | clean | tokenize | stop_wards | stemm | lemmatize | intensity | subjectivity | polarity)
+# Creates base data frame with all these columns (date | content | clean | tokenize | stop_wards | lemmatize | intensity | subjectivity | polarity)
 def create_topic_df():
     df = acquire_emails()
 
-    # Clean Data base to (date | content | clean | tokenize | stop_wards | stemm | lemmatize)
+    # Clean Data base to (date | content | clean | tokenize | stop_wards | lemmatize)
     df = clean_emails(df)
 
     # Creates dataframe with added (intensity | subjectivity | polarity) columns
@@ -352,7 +353,7 @@ def create_topic_df():
 # ---------------------------------------------------------------
 # Creates Time Series Data Frame after all the changes
 def create_time_series_df(df):
-    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize', 'stemm'])
+    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize'])
 
     df.date = pd.to_datetime(df.date, utc=True)
 
