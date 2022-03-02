@@ -58,7 +58,7 @@ def bertopic_model_2001(df):
     topics , probs = topic_model_2001.fit_transform(emails)
 
     return topic_model_2001, topics, probs
-    
+
 #---------------------------------------------------
 # output a hiearchy visual of a model
 #---------------------------------------------------
@@ -69,3 +69,4 @@ def model_hierachy_chart(model):
 #---------------------------------------------------
 def model_dataframe(model):
     sentiment_poi_2000 = model.get_topic_info()
+    return sentiment_poi_2000
