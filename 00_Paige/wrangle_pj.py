@@ -186,9 +186,7 @@ def clean_emails(df, column = 'content'):
     #    df = pd.read_csv('emails.csv')
     
     #else:
-    df['clean'] = df[column].apply(basic_clean)\
-                    .apply(tokenize)\
-                    .apply(stem)
+    df['clean'] = df[column].apply(basic_clean)
 
     df['tokenize'] = df[column].apply(basic_clean)\
                     .apply(tokenize)
@@ -318,14 +316,14 @@ def create_poi_column(df):
     'wes.colwell@enron.com',
     'dan.boyle@enron.com']
 
-    df['poi'] = np.where(df.sender.isin(poi), True, False)
+    df['is_poi'] = np.where(df.sender.isin(poi), True, False)
     return df
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 
 def create_internal_column(df):
     #internal = df[df.sender.str.contains('@enron.com')]
-    df['internal'] = np.where(df.sender.str.contains('@enron.com'), True, False)
+    df['is_internal'] = np.where(df.sender.str.contains('@enron.com'), True, False)
 
     return df
 
@@ -353,7 +351,7 @@ def create_topic_df():
 # ---------------------------------------------------------------
 # Creates Time Series Data Frame after all the changes
 def create_time_series_df(df):
-    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize'])
+    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize', 'is_internal', 'is_poi'])
 
     df.date = pd.to_datetime(df.date, utc=True)
 
