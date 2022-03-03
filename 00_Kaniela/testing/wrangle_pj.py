@@ -258,14 +258,14 @@ def add_scores(df, column):
 # ---------------------------------------------------------------
 
 # Creates intensity/ polarity / subjectivity columns for database
-def create_scores(df, column):
+def create_scores(df):
 
     # uses sentiment analyzer to create intensity scores column
     sia = SentimentIntensityAnalyzer()
-    df['intensity'] = df[column].apply(lambda doc: sia.polarity_scores(doc)['compound'])
+    df['intensity'] = df['lemmatize'].apply(lambda doc: sia.polarity_scores(doc)['compound'])
 
     # uses add_score function to create polarity and subjectivity column
-    df = add_scores(df, column)
+    df = add_scores(df, 'lemmatize')
     return df
 
 # ---------------------------------------------------------------
@@ -327,18 +327,28 @@ def create_internal_column(df):
 # ---------------------------------------------------------------
 # Creates base data frame with all these columns (date | content | clean | tokenize | stop_wards | stemm | lemmatize | intensity | subjectivity | polarity)
 
-def create_topic_df(df, column):
-#     df = acquire_emails()
+def create_topic_df():
+    df = acquire_emails()
+    
+    print('acquire_emails done')
 
-#     # Clean Data base to (date | content | clean | tokenize | stop_wards | stemm | lemmatize)
-#     df = clean_emails(df)
+    # Clean Data base to (date | content | clean | tokenize | stop_wards | stemm | lemmatize)
+    df = clean_emails(df)
+    
+    print('clean_emails done')
 
     # Creates dataframe with added (intensity | subjectivity | polarity) columns
-    df = create_scores(df, column)
+    df = create_scores(df)
+    
+    print('create_scores done')
 
     df = create_poi_column(df)
+    
+    print('created poi column')
 
     df = create_internal_column(df)
+    
+    print('created internal column')
 
     return df
 # ---------------------------------------------------------------
@@ -369,15 +379,22 @@ def time_series_df_final(df):
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # Uses all the functions and creates 2 dataframes for usage on topic modeling and time series analysis
-def create_dataframes_wrangle(df):
-#     # Acquire Emails
-#     df = create_topic_df()
+def create_dataframes_wrangle():
+    # Acquire Emails
+    df = create_topic_df()
+    
+    print('create_topic is done')
 
     # use the df and create the time series dataframe!
     time_series_df = create_time_series_df(df)
+    
+    print('create_time_series_df is done')
 
     # sets the time_series dataframe with columns (intensity | polarity | subjectivity | year | month) and sets to the years 1999 and 2002
     time_series_df = time_series_df_final(time_series_df)
+    
+    print('time_series_df_final is done')
+    
     return df, time_series_df
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
@@ -424,11 +441,19 @@ def create_topic_scores(df):
     
     topics, probs, topic_model, topics_df, emails_lemm = create_topic_model(df, column = 'lemmatize')
     
+    print(f'create_topic_model finished at: {pd.Timestamp.now()}')
+    
     docs_df = create_topic_docs(topic_model)
+          
+    print(f'create_topic_docs: {pd.Timestamp.now()}')
     
     docs_df_scores = create_scores(df=docs_df, column='text')
     
+    print(f'create_scores finished at: {pd.Timestamp.now()}')
+    
     topics_scores = topics_df.merge(docs_df_scores, on='topic', how='left')
+    
+    print(f'topics_scores finished at: {pd.Timestamp.now()}')
     
     return topics, probs, topic_model, topics_df, docs_df, topics_scores, emails_lemm
 
@@ -447,15 +472,25 @@ def create_topic_scores_reduced(emails_lemm, topics, topic_model, i):
     # reduce number of topics
     topic_model.reduce_topics(emails_lemm, topics, nr_topics=i)
     
+    print(f'reduce_topics finished at: {pd.Timestamp.now()}')
+    
     # create df of topics with topic, count, and name
     topics_df = topic_model.get_topic_info()[1:]
     topics_df = topics_df.rename(columns={'Topic':'topic', 'Count':'count', 'Name':'name'})
     
+    print(f'topics_df finished at: {pd.Timestamp.now()}')
+    
     docs_df = create_topic_docs(topic_model)
+    
+    print(f'create_topic_docs finished at: {pd.Timestamp.now()}')
     
     docs_df_scores = create_scores(df=docs_df, column='text')
     
+    print(f'create_scores finished at: {pd.Timestamp.now()}')
+    
     topics_scores = topics_df.merge(docs_df_scores, on='topic', how='left')
+    
+    print(f'topics_scores finished at: {pd.Timestamp.now()}')
     
     return topic_model, topics_df, docs_df, topics_scores
 # ---------------------------------------------------------------
