@@ -29,6 +29,12 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 # Polarity / Subjectivity scores
 from textblob import TextBlob
 
+# BERTopic for Topic Modeling
+from bertopic import BERTopic
+
+# umap for reproducability
+from umap import UMAP
+
 
 # Acquire Emails (acquires dataset)
 def acquire_emails():
@@ -186,33 +192,21 @@ def clean_emails(df, column = 'content'):
     #    df = pd.read_csv('emails.csv')
     
     #else:
-    df['clean'] = df[column].apply(basic_clean)\
-                    .apply(tokenize)\
-                    .apply(stem)
+    df['clean'] = df[column].apply(basic_clean)
 
-    df['tokenize'] = df[column].apply(basic_clean)\
-                    .apply(tokenize)
+    df['tokenize'] = df['clean'].apply(tokenize)
                 
-    df['stop_words'] = df[column].apply(basic_clean)\
-                    .apply(tokenize)\
-                    .apply(remove_stopwords)
+    df['stop_words'] = df['tokenize'].apply(remove_stopwords)
 
-    df['stemm'] = df[column].apply(basic_clean)\
-                    .apply(tokenize)\
-                    .apply(remove_stopwords)\
-                    .apply(stem)
+    df['stemm'] = df['stop_words'].apply(stem)
 
-    df['lemmatize'] = df[column].apply(basic_clean)\
-                    .apply(tokenize)\
-                    .apply(remove_stopwords)\
-                    .apply(lemmatize)
+    df['lemmatize'] = df['stop_words'].apply(lemmatize)
 
     #df.to_csv('clean_emails.csv')
     return df
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 
@@ -233,17 +227,14 @@ def sentiment_scores(string):
 # ---------------------------------------------------------------
 
 
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------    
-
 # function to add textblob sentiment scores to df
-def add_scores(df, clean_msg_col):
+def add_scores(df, column):
     '''
     This function takes in a df and column of strings to apply the sentiment_scores
     textblob function to. It returns a df with the polarity and subjectivity scores added.
     '''
     
-    df['polarity, subjectivity'] = df[clean_msg_col].apply(sentiment_scores)
+    df['polarity, subjectivity'] = df[column].apply(sentiment_scores)
     
     pol = []
     subj = []
@@ -251,12 +242,12 @@ def add_scores(df, clean_msg_col):
         pol.append(list(tuple_)[0])
         subj.append(list(tuple_)[1])
     
-    print('polarity and subjectivity algo complete')
+
     # df = df.drop(columns = ['polarity, sentiment'])
     df['polarity'] = pol
     df['subjectivity'] = subj
           
-    print('added sub and pol to df')
+
     
     # dropping polarity, subjectivity col
     df.drop(columns = ['polarity, subjectivity'], inplace = True)
@@ -265,19 +256,22 @@ def add_scores(df, clean_msg_col):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
+
 # Creates intensity/ polarity / subjectivity columns for database
-def create_scores(df):
+def create_scores(df, column):
 
     # uses sentiment analyzer to create intensity scores column
     sia = SentimentIntensityAnalyzer()
-    df['intensity'] = df.lemmatize.apply(lambda doc: sia.polarity_scores(doc)['compound'])
+    df['intensity'] = df[column].apply(lambda doc: sia.polarity_scores(doc)['compound'])
 
     # uses add_score function to create polarity and subjectivity column
-    df = add_scores(df, 'lemmatize')
+    df = add_scores(df, column)
     return df
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
+
+
 def create_poi_column(df):
 
     # creating poi list
@@ -317,14 +311,14 @@ def create_poi_column(df):
     'wes.colwell@enron.com',
     'dan.boyle@enron.com']
 
-    df['poi'] = np.where(df.sender.isin(poi), True, False)
+    df['is_poi'] = np.where(df.sender.isin(poi), True, False)
     return df
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 
 def create_internal_column(df):
     #internal = df[df.sender.str.contains('@enron.com')]
-    df['internal'] = np.where(df.sender.str.contains('@enron.com'), True, False)
+    df['is_internal'] = np.where(df.sender.str.contains('@enron.com'), True, False)
 
     return df
 
@@ -332,27 +326,28 @@ def create_internal_column(df):
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # Creates base data frame with all these columns (date | content | clean | tokenize | stop_wards | stemm | lemmatize | intensity | subjectivity | polarity)
-def create_topic_df():
-    df = acquire_emails()
 
-    # Clean Data base to (date | content | clean | tokenize | stop_wards | stemm | lemmatize)
-    df = clean_emails(df)
+def create_topic_df(df, column):
+#     df = acquire_emails()
+
+#     # Clean Data base to (date | content | clean | tokenize | stop_wards | stemm | lemmatize)
+#     df = clean_emails(df)
 
     # Creates dataframe with added (intensity | subjectivity | polarity) columns
-    df = create_scores(df)
+    df = create_scores(df, column)
 
     df = create_poi_column(df)
 
     df = create_internal_column(df)
 
     return df
-
-
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # Creates Time Series Data Frame after all the changes
 def create_time_series_df(df):
-    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize', 'stemm'])
+    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'stemm'])
 
     df.date = pd.to_datetime(df.date, utc=True)
 
@@ -374,9 +369,9 @@ def time_series_df_final(df):
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # Uses all the functions and creates 2 dataframes for usage on topic modeling and time series analysis
-def create_dataframes_wrangle():
-    # Acquire Emails
-    df = create_topic_df()
+def create_dataframes_wrangle(df):
+#     # Acquire Emails
+#     df = create_topic_df()
 
     # use the df and create the time series dataframe!
     time_series_df = create_time_series_df(df)
@@ -384,11 +379,86 @@ def create_dataframes_wrangle():
     # sets the time_series dataframe with columns (intensity | polarity | subjectivity | year | month) and sets to the years 1999 and 2002
     time_series_df = time_series_df_final(time_series_df)
     return df, time_series_df
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
 
+# this creates the topic model, topic number, and probability from list data
+def create_topic_model(df, column = 'lemmatize'):
+    # create list for model
+    emails_lemm = list(df[column])
+    # Set UMPAP random_state 42 for reproducability
+    umap_model = UMAP(n_neighbors=15, n_components=5,
+                      min_dist=0.0, metric='cosine', random_state=42)
+    
+    # create model object
+    topic_model = BERTopic(umap_model = umap_model, language = 'english')
+    
+    # fit_transforms on lemmatized data
+    topics, probs = topic_model.fit_transform(emails_lemm)
+    
+    # create df of topics with topic, count, and name
+    topics_df = topic_model.get_topic_info()[1:]
+    topics_df = topics_df.rename(columns={'Topic':'topic', 'Count':'count', 'Name':'name'})
+    return topics, probs, topic_model, topics_df, emails_lemm
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 
+# create df of topic docs
+def create_topic_docs(topic_model):
+    # change topics docs to list, then to dataframe text column as string
+    docs_items = topic_model.get_representative_docs().items()
+    docs_list = list(docs_items)
+    docs_df = pd.DataFrame(docs_list)
+    docs_df.rename(columns={0:'topic', 1:'text'}, inplace=True)
+    docs_df.text = docs_df.text.astype('str')
+    return docs_df
 
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
 
+# added insensity score to top of current function
+def create_topic_scores(df):
+    
+    topics, probs, topic_model, topics_df, emails_lemm = create_topic_model(df, column = 'lemmatize')
+    
+    docs_df = create_topic_docs(topic_model)
+    
+    docs_df_scores = create_scores(df=docs_df, column='text')
+    
+    topics_scores = topics_df.merge(docs_df_scores, on='topic', how='left')
+    
+    return topics, probs, topic_model, topics_df, docs_df, topics_scores, emails_lemm
 
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+
+# added insensity score to top of current function
+def create_topic_scores_reduced(emails_lemm, topics, topic_model, i):
+    '''
+    This function uses a the BERTopic model with a reduced number of topics and creates
+    docs_df, added the score and mgeres 
+    '''
+    
+    # reduce number of topics
+    topic_model.reduce_topics(emails_lemm, topics, nr_topics=i)
+    
+    # create df of topics with topic, count, and name
+    topics_df = topic_model.get_topic_info()[1:]
+    topics_df = topics_df.rename(columns={'Topic':'topic', 'Count':'count', 'Name':'name'})
+    
+    docs_df = create_topic_docs(topic_model)
+    
+    docs_df_scores = create_scores(df=docs_df, column='text')
+    
+    topics_scores = topics_df.merge(docs_df_scores, on='topic', how='left')
+    
+    return topic_model, topics_df, docs_df, topics_scores
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
