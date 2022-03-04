@@ -20,6 +20,9 @@ import wrangle
 # bert topic modeling library
 from bertopic import BERTopic
 
+# import umap for reproducability
+from umap import UMAP
+
 def create_topic_model(df, column = 'lemmatize'):
     '''
     This function takes in a df and fits the BERTopic model object on the lemmatized text,
@@ -37,17 +40,17 @@ def create_topic_model(df, column = 'lemmatize'):
     '''
 
     #creating a list of strings for each row of lemmatized text in df
-    emails = list(df[column])
+    emails_lemm = list(df[column])
     
     # Set UMPAP random_state 42 for reproducability
     umap_model = UMAP(n_neighbors=15, n_components=5,
                       min_dist=0.0, metric='cosine', random_state=42)
 
     #creating the BERTopic model object
-    topic_model = BERTopic(umap_model = umap_model, language = 'english', nr_topics = 'auto')
+    topic_model = BERTopic(umap_model = umap_model, language = 'english')
 
     #fitting model object to lemmatized text and transforming to create topics
-    topics, probs = topic_model.fit_transform(emails_lumm)
+    topics, probs = topic_model.fit_transform(emails_lemm)
 
     # create df of topics with topic, count, and name
     topics_df = topic_model.get_topic_info()[1:]
@@ -75,10 +78,10 @@ def create_topic_docs(topic_model):
     docs_df = pd.DataFrame(docs_list)
     
     # renames dateframe columns for readability
-    docs_df.rename(columns={0:'topic', 1:'text'}, inplace=True)
+    docs_df.rename(columns={0:'topic', 1:'lemmatize'}, inplace=True)
     
     # text column is set as string
-    docs_df.text = docs_df.text.astype('str')
+    docs_df.lemmatize = docs_df.lemmatize.astype('str')
     
     return docs_df
 
@@ -99,7 +102,7 @@ def create_topic_scores(df):
     docs_df = create_topic_docs(topic_model)
     
     # runs create scores from wrangle file to add intensity, subjectivity, and polarity
-    docs_df_scores = wrangle.create_scores(df=docs_df, column='text')
+    docs_df_scores = wrangle.create_scores(df=docs_df)
     
     # merges the df with topic scores with the df of topics 
     topics_scores = topics_df.merge(docs_df_scores, on='topic', how='left')
@@ -126,29 +129,13 @@ def create_topic_scores_reduced(emails_lemm, topics, topic_model, i):
     docs_df = create_topic_docs(topic_model)
     
     # runs create scores from wrangle file to add intensity, subjectivity, and polarity
-    docs_df_scores = create_scores(df=docs_df, column='text')
+    docs_df_scores = wrangle.create_scores(df=docs_df)
     
     # merges the df with topic scores with the df of topics 
     topics_scores = topics_df.merge(docs_df_scores, on='topic', how='left')
     
     return topic_model, topics_df, docs_df, topics_scores
 
-
-def get_topics(df):
-    '''
-    This function takes in a fit and transformed BERTopic model object and returns
-    a df with the modeled topics. 
-
-    This will allow us to look at all of the modeled topics for a given df's list of 
-    column strings of text.
-    '''
-    #calling the topic_model() function to get fit and transformed model object
-    topic_model = topic_model(df)
-
-    #df of model topics
-    topics = topic_model.get_topic_info()
-
-    return topics
 
 
 def plot_topic(model, topic_num, figsize_ = None, palette_ = None, title = None):
@@ -168,12 +155,12 @@ def plot_topic(model, topic_num, figsize_ = None, palette_ = None, title = None)
     '''
 
     #calling the topic_model() function to get fit and transformed model object
-    model = topic_model(df)
+    topic_model = topic_model(df)
 
     #sets figure size
     plt.figure(figsize = figsize_)
 
-    sns.barplot(data = pd.DataFrame(model.get_topic(topic = topic_num)), y = 0, x = 1, palette = palette_)
+    sns.barplot(data = pd.DataFrame(topic_model.get_topic(topic = topic_num)), y = 0, x = 1, palette = palette_)
     plt.title(title)
     plt.show()
 
@@ -185,7 +172,7 @@ def plot_distance_map(topic_model):
     This will allow us to see overlapping topics, outliers, and topic groups.
     '''
     #calling method to plot intertopic distance map
-    topic_model.visualize_topics()
+    return topic_model.visualize_topics()
 
 def topic_tree(topic_model):
     '''
@@ -196,4 +183,4 @@ def topic_tree(topic_model):
     levels of subgrouping.
     '''
 
-    topic_model.visualize_hierarchy()
+    return topic_model.visualize_hierarchy()
