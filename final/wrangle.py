@@ -384,6 +384,7 @@ def create_dataframes_wrangle():
 
     # sets the time_series dataframe with columns (intensity | polarity | subjectivity | year | month) and sets to the years 1999 and 2002
     time_series_df = time_series_df_final(time_series_df)
+    
     return df, time_series_df
 
 # ---------------------------------------------------------------
