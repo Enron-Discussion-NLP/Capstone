@@ -76,10 +76,10 @@ If we had more time:
 
 # Steps to Recreate
 1. Read this README.md file<br>
-2. Ensure you have latest version of Python installed<br>
-3. Read email corpus to DataFrame (see link in citation below)<br>
-4. Install and Import Python Libraries:
+2. Ensure you have latest version of Python and libraries (listed below) installed<br>
+3. Clone this repository, download the project files listed below, and run the final_report notebook.<br>
 
+## Python Libraries:
 Library | Import Code | Documentation
 :-- | :-- | :-- 
 Pandas | `import pandas as pd` | https://pandas.pydata.org/docs/
@@ -89,6 +89,19 @@ datetime | `import date_time` | https://docs.python.org/3/library/datetime.html
 Vader, Sentiment Analysis | `from nltk.sentiment.vader import SentimentIntensityAnalyzer` | https://www.nltk.org/_modules/nltk/sentiment/vader.html 
 Textblob, Sentiment Analysis | `from textblob import TextBlob` | https://pypi.org/project/textblob/
 Bertopic, Topic Modeling | `from bertopic import BERTopic` | https://pypi.org/project/bertopic/
+
+## Project Files
+file_name | Description | Location
+:-- | :-- | :--
+`00-raw_data.csv` | raw project data | [Dropbox Folder](https://accenturefs.recsolu.com/app/collect/form/ADj2sD6o5JC6bzMuRVEKXA)
+`01-clean_data` | cleaned and prepared data | [Dropbox Folder](https://accenturefs.recsolu.com/app/collect/form/ADj2sD6o5JC6bzMuRVEKXA)
+`02-ts_data.csv` | time series data | [Dropbox Folder](https://accenturefs.recsolu.com/app/collect/form/ADj2sD6o5JC6bzMuRVEKXA)
+`03-poi_99to22.csv` | clean data - poi only from 99' to 02'| [Dropbox Folder](https://accenturefs.recsolu.com/app/collect/form/ADj2sD6o5JC6bzMuRVEKXA)
+`final_report.ipynb` | final report notebook | Github repo
+presentation | slideshow presentation | Google Slides
+`wrangle.py` | acquire, clean, and prepare functions | Github repo
+`explore.py` | Uni, Bi, and Multivariate explore functions | Github repo
+`model.py` | Topic Modeling functions | Github repo
 
 # References and Citations
 Bert topic model:
