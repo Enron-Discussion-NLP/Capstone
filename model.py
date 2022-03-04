@@ -15,10 +15,12 @@ plt.style.use('seaborn-whitegrid')
 
 from sklearn.feature_extraction.text import CountVectorizer
 
+import wrangle
+
 # bert topic modeling library
 from bertopic import BERTopic
 
-def topic_model(df):
+def create_topic_model(df, column = 'lemmatize'):
     '''
     This function takes in a df and fits the BERTopic model object on the lemmatized text,
     tranforming the raw text into topic groups, returning the transformed model object that 
@@ -35,15 +37,102 @@ def topic_model(df):
     '''
 
     #creating a list of strings for each row of lemmatized text in df
-    emails = list(df.lemmatize)
+    emails = list(df[column])
+    
+    # Set UMPAP random_state 42 for reproducability
+    umap_model = UMAP(n_neighbors=15, n_components=5,
+                      min_dist=0.0, metric='cosine', random_state=42)
 
     #creating the BERTopic model object
-    model = BERTopic(language = 'english', nr_topics = 'auto')
+    topic_model = BERTopic(umap_model = umap_model, language = 'english', nr_topics = 'auto')
 
     #fitting model object to lemmatized text and transforming to create topics
-    topics, probs = model.fit_transform(emails)
+    topics, probs = topic_model.fit_transform(emails_lumm)
 
-    return model
+    # create df of topics with topic, count, and name
+    topics_df = topic_model.get_topic_info()[1:]
+    topics_df = topics_df.rename(columns={'Topic':'topic', 'Count':'count', 'Name':'name'})
+    
+    return topics, probs, topic_model, topics_df, emails_lemm
+
+
+
+def create_topic_docs(topic_model):
+    '''
+    This function takes the topic_model and extracts the emails that were
+    grouped to each topic. Then it takes each grouped docs that is in dictionary 
+    data type and makes into a list. That list is made into a dataframe, columns 
+    are renamed for readability, and each row in the text column is 
+    made into a string
+    '''
+    # change topics docs to list, then to dataframe text column as string
+    docs_items = topic_model.get_representative_docs().items()
+    
+    # sets the docs of topics into a list
+    docs_list = list(docs_items)
+    
+    # sets list into data frame
+    docs_df = pd.DataFrame(docs_list)
+    
+    # renames dateframe columns for readability
+    docs_df.rename(columns={0:'topic', 1:'text'}, inplace=True)
+    
+    # text column is set as string
+    docs_df.text = docs_df.text.astype('str')
+    
+    return docs_df
+
+
+
+def create_topic_scores(df):
+    '''
+    This function runs create_topic_model function to get the topic_model and other objects.
+    Topic model is used to extract the email text from each topic. It runs create_scores function
+    from wrangle to get intensity, subjectivity, and polarity scores for each topic based on docs_df.
+    Then is merges docs_df with scores and the topics_df that has topic name.
+    '''
+    
+    # runs create_topic_model function to return topic_model objects
+    topics, probs, topic_model, topics_df, emails_lemm = create_topic_model(df, column = 'lemmatize')
+    
+    # runs create_topic_docs to get docs_df which is the df with all docs as string
+    docs_df = create_topic_docs(topic_model)
+    
+    # runs create scores from wrangle file to add intensity, subjectivity, and polarity
+    docs_df_scores = wrangle.create_scores(df=docs_df, column='text')
+    
+    # merges the df with topic scores with the df of topics 
+    topics_scores = topics_df.merge(docs_df_scores, on='topic', how='left')
+    
+    return topics, probs, topic_model, topics_df, docs_df, topics_scores, emails_lemm
+
+
+
+def create_topic_scores_reduced(emails_lemm, topics, topic_model, i):
+    '''
+    This function uses a the BERTopic model with a reduced number of topics and creates
+    docs_df
+    '''
+    
+    # reduce number of topics to count depending previous heirarical grouping
+    topic_model.reduce_topics(emails_lemm, topics, nr_topics=i)
+    
+    
+    # create df of topics with topic, count, and name
+    topics_df = topic_model.get_topic_info()[1:]
+    topics_df = topics_df.rename(columns={'Topic':'topic', 'Count':'count', 'Name':'name'})
+    
+    # runs create_topic_docs to get docs_df which is the df with all docs as string
+    docs_df = create_topic_docs(topic_model)
+    
+    # runs create scores from wrangle file to add intensity, subjectivity, and polarity
+    docs_df_scores = create_scores(df=docs_df, column='text')
+    
+    # merges the df with topic scores with the df of topics 
+    topics_scores = topics_df.merge(docs_df_scores, on='topic', how='left')
+    
+    return topic_model, topics_df, docs_df, topics_scores
+
 
 def get_topics(df):
     '''
@@ -54,10 +143,10 @@ def get_topics(df):
     column strings of text.
     '''
     #calling the topic_model() function to get fit and transformed model object
-    model = topic_model(df)
+    topic_model = topic_model(df)
 
     #df of model topics
-    topics = model.get_topic_info()
+    topics = topic_model.get_topic_info()
 
     return topics
 
@@ -88,7 +177,7 @@ def plot_topic(model, topic_num, figsize_ = None, palette_ = None, title = None)
     plt.title(title)
     plt.show()
 
-def plot_distance_map(model):
+def plot_distance_map(topic_model):
     '''
     This function takes in a fit and transformed model object and plots a
     topic distance map with each topic in one of four quadrants.
@@ -96,9 +185,9 @@ def plot_distance_map(model):
     This will allow us to see overlapping topics, outliers, and topic groups.
     '''
     #calling method to plot intertopic distance map
-    model.visualize_topics()
+    topic_model.visualize_topics()
 
-def topic_tree(model):
+def topic_tree(topic_model):
     '''
     This function takes in a fit and transformed model object and plots a 
     tree, with the levels of heirachical clustering.
@@ -107,4 +196,4 @@ def topic_tree(model):
     levels of subgrouping.
     '''
 
-    model.visualize_hierarchy()
+    topic_model.visualize_hierarchy()

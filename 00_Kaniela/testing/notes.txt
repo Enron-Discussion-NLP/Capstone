@@ -1,0 +1,14 @@
+Notes while testing modules
+
+wrangle_pj
+
+- added double double dash lines to seperate the related functions
+- added topic modeling functions
+    - create_topic_model
+    - create_topic_docs
+    - create_topic_scores
+- changed create_dataframes_wrangle
+    - commented out acquire function
+    - added df to aruguement
+- added import of BERTopic and umap
+- changed fuction create_scores: added column argument

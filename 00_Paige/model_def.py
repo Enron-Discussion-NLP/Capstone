@@ -70,3 +70,27 @@ def model_hierachy_chart(model):
 def model_dataframe(model):
     sentiment_poi_2000 = model.get_topic_info()
     return sentiment_poi_2000
+
+
+# this creates the topic model, topic number, and probability from list data
+def topic_model(series):
+    # create list for model
+    emails_lemm = list(series)
+    # Set UMPAP random_state 42 for reproducability
+    umap_model = UMAP(n_neighbors=15, n_components=5,
+                      min_dist=0.0, metric=‘cosine’, random_state=42)
+    # create model object
+    topic_model = BERTopic(umap_model = umap_model, language = ‘english’)
+    # fit_transforms on lemmatized data
+    topics, probs = topic_model.fit_transform(emails_lemm)
+    return topics, probs, topic_model
+
+# create df of topic docs
+def topic_docs(topic_model):
+    # change topics docs to list, then to dataframe text column as string
+    docs_items = topic_model.get_representative_docs().items()
+    docs_list = list(docs_items)
+    docs_df = pd.DataFrame(docs_list)
+    docs_df.rename(columns={0:‘topic’, 1:‘text’}, inplace=True)
+    docs_df.text = docs_df.text.astype(‘str’)
+    return docs_df (edited) 
