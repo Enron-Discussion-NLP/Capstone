@@ -1,11 +1,9 @@
-# Getting Ahead of the Headline 
+# Getting Ahead of the Headline | Enron Topic Modeling
 <!-- Analyzing employee emails using Natural Language Processing, Sentiment Analysis, and Time Series Analysis<br> -->
 
 ![](00_Stephanie/images/0_headerv2.png)
-<hr><center>Enron Topic Modeling | Codeup, Hopper Cohort | March 2022<br>
+<hr><center>Codeup, Hopper Cohort | March 2022<br></center>
 <hr>
-</center>
-
 
 # About the Project
 <p>In this unsupervised machine learning project we explored a corpus of over 500k Enron employee emails from ~150 unique users, mostly in senior management. 
