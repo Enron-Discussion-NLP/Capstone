@@ -389,6 +389,8 @@ def create_dataframes_wrangle():
 # ---------------------------------------------------------------
 # This functions sets up and further cleans the df to two dataframes where we modeled on 2000 - 2001
 def create_topic_dataframes(df):
+
+    df.date = pd.to_datetime(df.date)
     is_poi_df = df[df.is_poi == True]
 
     df_2000 = is_poi_df[is_poi_df.date.dt.year == 2000]
