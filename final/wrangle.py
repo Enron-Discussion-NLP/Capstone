@@ -521,3 +521,30 @@ def create_topic_scores_reduced(emails_lemm, topics, topic_model, i):
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
+
+def read_in(df, time_series_df):
+    '''
+    This function takes the read in df and time_series_df dataframes and 
+    removes Unnamed column, fills nulls, convert date to datetime data type
+    and makes date column the index and sorts by ascending order.
+    '''
+    
+    # drop unamed column
+    df = df.drop(columns = ['Unnamed: 0'])
+    # fill nulls with nothing
+    df = df.fillna('')
+    # convert date column to datetime value
+    df.date = pd.to_datetime(df.date, utc=True)
+
+    #time_series_df = time_series_df.drop(columns = ['Unnamed: 0'])
+    time_series_df = time_series_df.fillna('')
+    # convert date column to datetime value
+    time_series_df.date = pd.to_datetime(time_series_df.date, utc=True)
+    # make date column the index and sort in ascending order
+    time_series_df = time_series_df.set_index('date').sort_index()
+    
+    return df, time_series_df
+
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+
