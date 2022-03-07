@@ -32,7 +32,7 @@ from textblob import TextBlob
 
 # Acquire Emails (acquires dataset)
 def acquire_emails():
-    df = pd.read_csv('00_raw_emails.csv')
+    df = pd.read_csv('email.csv')
 
     bodies = []
     dates = []
@@ -79,8 +79,7 @@ def acquire_emails():
     df = df.drop(columns = ['message'])
 
     return df
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------
+
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # Cleans emails
@@ -212,6 +211,7 @@ def clean_emails(df, column = 'content'):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
+
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 
@@ -228,9 +228,12 @@ def sentiment_scores(string):
     polarity, subjectivity = TextBlob(str(string)).sentiment
     
     return polarity, subjectivity
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
+
 
 # ---------------------------------------------------------------
-# ---------------------------------------------------------------
+# ---------------------------------------------------------------    
 
 # function to add textblob sentiment scores to df
 def add_scores(df, clean_msg_col):
@@ -247,10 +250,12 @@ def add_scores(df, clean_msg_col):
         pol.append(list(tuple_)[0])
         subj.append(list(tuple_)[1])
     
+    print('polarity and subjectivity algo complete')
     # df = df.drop(columns = ['polarity, sentiment'])
     df['polarity'] = pol
     df['subjectivity'] = subj
           
+    print('added sub and pol to df')
     
     # dropping polarity, subjectivity col
     df.drop(columns = ['polarity, subjectivity'], inplace = True)
@@ -259,7 +264,6 @@ def add_scores(df, clean_msg_col):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 # Creates intensity/ polarity / subjectivity columns for database
 def create_scores(df):
 
@@ -273,7 +277,6 @@ def create_scores(df):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 def create_poi_column(df):
 
     # creating poi list
@@ -315,7 +318,6 @@ def create_poi_column(df):
 
     df['is_poi'] = np.where(df.sender.isin(poi), True, False)
     return df
-
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 
@@ -328,7 +330,6 @@ def create_internal_column(df):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 # Creates base data frame with all these columns (date | content | clean | tokenize | stop_wards | lemmatize | intensity | subjectivity | polarity)
 def create_topic_df():
     df = acquire_emails()
@@ -348,10 +349,9 @@ def create_topic_df():
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 # Creates Time Series Data Frame after all the changes
 def create_time_series_df(df):
-    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'is_internal', 'is_poi'])
+    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize', 'is_internal', 'is_poi'])
 
     df.date = pd.to_datetime(df.date, utc=True)
 
@@ -361,7 +361,6 @@ def create_time_series_df(df):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 def time_series_df_final(df):
     df['year'] = df.index.year
     df['month'] = df.index.month
@@ -373,7 +372,6 @@ def time_series_df_final(df):
 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 # Uses all the functions and creates 2 dataframes for usage on topic modeling and time series analysis
 def create_dataframes_wrangle():
     # Acquire Emails
@@ -384,14 +382,11 @@ def create_dataframes_wrangle():
 
     # sets the time_series dataframe with columns (intensity | polarity | subjectivity | year | month) and sets to the years 1999 and 2002
     time_series_df = time_series_df_final(time_series_df)
-    
     return df, time_series_df
 
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------
 
+# ---------------------------------------------------------------
+# ---------------------------------------------------------------
 # This functions sets up and further cleans the df to two dataframes where we modeled on 2000 - 2001
 def create_topic_dataframes(df):
     is_poi_df = df[df.is_poi == True]
@@ -401,29 +396,10 @@ def create_topic_dataframes(df):
 
     return df_2000, df_2001
 
+
+# Khan's Models 
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
-# removed lemmatized from drop
-def create_time_series_df_allyears(df):
-    df = df.drop(columns = ['file', 'sender', 'subject', 'content', 'clean', 'tokenize', 'stop_words', 'lemmatize', 'is_internal', 'is_poi'])
-
-    df.date = pd.to_datetime(df.date, utc=True)
-
-    df = df.set_index('date').sort_index()
-
-    df['year'] = df.index.year
-    df['month'] = df.index.month
-    
-    return df
-
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------
-
-# Kan's Models 
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------
-
 # this creates the topic model, topic number, and probability from list data
 def create_topic_model(df, column = 'lemmatize'):
     # create list for model
@@ -442,10 +418,8 @@ def create_topic_model(df, column = 'lemmatize'):
     topics_df = topic_model.get_topic_info()[1:]
     topics_df = topics_df.rename(columns={'Topic':'topic', 'Count':'count', 'Name':'name'})
     return topics, probs, topic_model, topics_df, emails_lemm
-
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 # create df of topic docs
 def create_topic_docs(topic_model):
     # change topics docs to list, then to dataframe text column as string
@@ -455,10 +429,8 @@ def create_topic_docs(topic_model):
     docs_df.rename(columns={0:'topic', 1:'text'}, inplace=True)
     docs_df.text = docs_df.text.astype('str')
     return docs_df
-
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 # added insensity score to top of current function
 def create_topic_scores(df):
     
@@ -479,12 +451,10 @@ def create_topic_scores(df):
     print(f'topics_scores finished at: {pd.Timestamp.now()}')
     
     return topics, probs, topic_model, topics_df, docs_df, topics_scores, emails_lemm
-
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
 # added insensity score to top of current function
 def create_topic_scores_reduced(emails_lemm, topics, topic_model, i):
     '''
@@ -516,35 +486,7 @@ def create_topic_scores_reduced(emails_lemm, topics, topic_model, i):
     print(f'topics_scores finished at: {pd.Timestamp.now()}')
     
     return topic_model, topics_df, docs_df, topics_scores
-
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
 # ---------------------------------------------------------------
-
-def read_in(df, time_series_df):
-    '''
-    This function takes the read in df and time_series_df dataframes and 
-    removes Unnamed column, fills nulls, convert date to datetime data type
-    and makes date column the index and sorts by ascending order.
-    '''
-    
-    # drop unamed column
-    df = df.drop(columns = ['Unnamed: 0'])
-    # fill nulls with nothing
-    df = df.fillna('')
-    # convert date column to datetime value
-    df.date = pd.to_datetime(df.date, utc=True)
-
-    #time_series_df = time_series_df.drop(columns = ['Unnamed: 0'])
-    time_series_df = time_series_df.fillna('')
-    # convert date column to datetime value
-    time_series_df.date = pd.to_datetime(time_series_df.date, utc=True)
-    # make date column the index and sort in ascending order
-    time_series_df = time_series_df.set_index('date').sort_index()
-    
-    return df, time_series_df
-
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------
-
