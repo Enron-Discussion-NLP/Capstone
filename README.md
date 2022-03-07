@@ -1,29 +1,31 @@
 # Getting Ahead of the Headline 
-Analyzing employee emails using Natural Language Processing, Sentiment Analysis, and Time Series Analysis<br>
+<!-- Analyzing employee emails using Natural Language Processing, Sentiment Analysis, and Time Series Analysis<br> -->
 
-![](00_Stephanie/images/0_header.png)
-Enron Topic Modeling | Codeup, Hopper Cohort | March 2022<br><br>
->Paige Guajardo<br>
-Rajaram Gautam<br>
-Stephanie Jones<br>
-Kaniela Denis<br><br>
+![](00_Stephanie/images/0_headerv2.png)
+<hr><center>Enron Topic Modeling | Codeup, Hopper Cohort | March 2022<br>
+<hr>
+</center>
 
 
 # About the Project
-<p>In this unsupervised machine learning project we are exploring and analyzing Enron employee emails. We are using topic modeling, sentiment analysis, and time series analysis to identify trends in communication themes over time. For our MVP we are looking at a corpus of 5,575 emails sent by people of interest, as identified by the official congressional report on the role of Enron's board of directors (https://bit.ly/3Hjz5rI) on the collapse of the company. 
-
-## Initial Hypothesis
-Our initial hypothesis is that there will be distinct trends in email topics and sentiment over time. 
+<p>In this unsupervised machine learning project we explored a corpus of over 500k Enron employee emails from ~150 unique users, mostly in senior management. 
+<br><br>
+<p>We used sentiment and time series analysis along with topic modeling to look for trends and patterns in communication over time. 
+<!-- and analyzing Enron employee emails. We are using topic modeling, sentiment analysis, and time series analysis to identify trends in communication themes over time. For our MVP we are looking at a corpus of 5,575 emails sent by people of interest, as identified by the official congressional report on the role of Enron's board of directors (https://bit.ly/3Hjz5rI) on the collapse of the company.  -->
 
 ## Background
-Enron Corporation was a major American energy, commodities, and services company that declared bankruptcy in December 2001 after over a decade of fraudulent accounting practices. During an error of more lenient financial regulations and high market speculation, Enron hid its financial losses in special purposes entities, making it appear much more profitable on paper than it actually was.
+Founded in 1985, Enron was a major American energy and commodity trading company. After over a decade of reporting exponential profits and record breaking growth, the company declared bankruptcy in December 2001.
 <br><br>
-Enron has become synonymous with willful corporate fraud and corruption. The scandal also brought into question the accounting practices and activities of many corporations in the United States and was a factor in the enactment of the Sarbanes-Oxley Act of 2002. The scandal also affected the greater business world by causing the dissolution of the Arthur Andersen accounting firm, which had been Enron's main auditor for years.
+It was later determined that lenient financial laws allowed Enron to exploit regulatory loopholes and get away with hiding hundreds of millions of dollars in losses and take on risky investments betting with public utilities servies, making the company appear much more profitable than it actually was.
+<!-- Enron has become synonymous with willful corporate fraud and corruption. The scandal also brought into question the accounting practices and activities of many other corporations, leading to the enactment of stricter financial legislation and reporting requirements. The scandal also affected the greater business world by causing the dissolution of the Arthur Andersen accounting firm, which had been Enron's main auditor for years. -->
 
-## Business Goal
-Company leaders, lawmakers, and the public will be able to use our analysis to identify key themes in communication between persons of interest in the early stages of investigating suspicious organizational activity. 
+## Initial Hypothesis
+Initially, we believed that analyzing employee sentiment would differ at different points throughout the timeline of Enron's collapse, giving us clues as to what was happening internally with the compnay.
 
-## Data Dictionary
+## Our Findings
+We found that sentiment scores were relatively steady throughout the timeline of the company's collapse and decided to explore topic modeling. We found that we could you topic clusters to generate keyword clusters in employee emails, allowing us to match distinct keywords with actual events within the company during its collapse.
+
+# Data Dictionary
 variable | dtype | description
 :-- | :-- | :--
 `date` | datetime | date email was sent
@@ -38,27 +40,56 @@ variable | dtype | description
 `poi` | bool | is person directly connected to investigation
 `is_internal` | bool | True == email was sent from Enron address
 
-## Person of Interest
-Using the text from the Congressional investigation report, we identified key people of interest at Enron, linked to the investigation. (see citation below for report). 
+# Persons of Interest
+Using the text from the [Senate investigation report](https://www.govinfo.gov/content/pkg/CPRT-107SPRT80393/html/CPRT-107SPRT80393.htm), we identified Enron executives linked to the investigation who we identified as persons of interest.
 Name | Connection to Enron | Enron Investigation
 :-- | :-- | :---
 Name | Role at Enron | Investigated/indicted/fired
-
 
 # Data Science Pipeline 
 ## Planning
 We used a [Trello Board](https://trello.com/b/osnQZqjJ/enronnlp-project) for planning.
 
 ## Data Wrangling
-Data source: [Kaggle](https://www.kaggle.com/wcukierski/enron-email-dataset), Will Cukierski | 2016 
+- We acquired our data from [Kaggle](https://www.kaggle.com/wcukierski/enron-email-dataset)
+- We used the [email.parser]() Python library to parse out the following contents from the message content:
+  - Date
+  - Subject
+  - Sender
+  - Content
+- We performed the following cleaning steps on the contents of the email text
+  - lowercased and stripped out unecessary white space
+  - used regex to remove special characters and normalized the text 
+  - created tokens from the text strings and removed the stop words
+  - lemmatizing the tokens and then rejoining the processed tokens back to a string
+  - filled null values with empty string
+Feature Engineering
+- `is_poi` Person of Interest from Sender
+- `is_internal` Email originated from @enron.com address from Sender
+- `month` and `year` from Date
+- `intensity` (Vader) and `polarity` and subjectivity from (Textblob)
 
 ## Exploratory Analysis
-1. How does employee sentiment change over time?
-2. What percentage of emails were sent by employees connected to the investigation and are their average sentiment scores different from the overall average sentiment scores?
-3. Were any emails sent from external addresses and, if so, how do their sentiment scores compare to interal emails' scores?
-4. What senders had the highest and lowest sentiment scores?
-5. What were common themes among emails sent by those who identified as  person of interest?
-6. Were there any unique themes by year?
+- What are the distributions of continuous and boolean variables?
+> Intensity mostly positive and neutral, polarity and subjectivity  mosty neutral<br>
+Most email sent from @enron.com email, from a non-Person of Interest
+<!-- >`intensity` left skewed - a lot of positive and nuetral values<br>
+`polarity` and `subjectivity` normal-*ishly* distributed mostly neutral<br>
+Most emails between 1999 - 2002<br>
+83% of emails sent from @enron.com email<br>
+Only 1.08% emails sent from a Person of Interest --> 
+
+- Was there a difference in sentiment scores for each year?
+>For each of three sentiment scores there was almost no difference in each sentiment score from year to year
+
+- Did sentiment scores between Persons of Interest differ significantly from non-Persons of Interest?
+>There was no significant difference in sentiment scores between Persons of Interest and non-Persons of Interest
+
+- How correlated were each of the three sentiment scores with one another?
+> There was correlation between the three sentiment measures but it was very low. 
+
+- Were there any seasonal trends in monthly employee sentiment
+> No, but there were large dips for x3 months from 1999 - 2002
 
 ## Modeling
 We used the `BERTopic` algorithm for topic modeling and looked at common topics for all emails from persons of interest by year, from 2000 to 2002. Initially, we planned to include 1999 but there were not enough emails for that year to generate topics from this algorithm. 
