@@ -6,9 +6,9 @@
 <hr>
 
 # About the Project
-<p>In this unsupervised machine learning project we explored a corpus of over 500k Enron employee emails from ~150 unique users, mostly in senior management. 
+In this unsupervised machine learning project we explored a corpus of over 500k Enron employee emails from ~150 unique users, mostly in senior management. 
 <br><br>
-<p>We used sentiment and time series analysis along with topic modeling to look for trends and patterns in communication over time. 
+Click [here]() to check out the video recording where we present our project process and findings!
 <!-- and analyzing Enron employee emails. We are using topic modeling, sentiment analysis, and time series analysis to identify trends in communication themes over time. For our MVP we are looking at a corpus of 5,575 emails sent by people of interest, as identified by the official congressional report on the role of Enron's board of directors (https://bit.ly/3Hjz5rI) on the collapse of the company.  -->
 
 ## Background
@@ -16,6 +16,9 @@ Founded in 1985, Enron was a major American energy and commodity trading company
 <br><br>
 It was later determined that lenient financial laws allowed Enron to exploit regulatory loopholes and get away with hiding hundreds of millions of dollars in losses and take on risky investments betting with public utilities servies, making the company appear much more profitable than it actually was.
 <!-- Enron has become synonymous with willful corporate fraud and corruption. The scandal also brought into question the accounting practices and activities of many other corporations, leading to the enactment of stricter financial legislation and reporting requirements. The scandal also affected the greater business world by causing the dissolution of the Arthur Andersen accounting firm, which had been Enron's main auditor for years. -->
+
+## Our Goal
+To reverse engineer the Enron case and look for patterns, trends, and insights in the corpus of executive emails that will give us clues about what was going within the company, prior to its collapse
 
 ## Initial Hypothesis
 Initially, we believed that analyzing employee sentiment would differ at different points throughout the timeline of Enron's collapse, giving us clues as to what was happening internally with the compnay.
@@ -39,10 +42,11 @@ variable | dtype | description
 `is_internal` | bool | True == email was sent from Enron address
 
 # Persons of Interest
-Using the text from the [Senate investigation report](https://www.govinfo.gov/content/pkg/CPRT-107SPRT80393/html/CPRT-107SPRT80393.htm), we identified Enron executives linked to the investigation who we identified as persons of interest.
-Name | Connection to Enron | Enron Investigation
+Using the text from the [Senate investigation report](https://www.govinfo.gov/content/pkg/CPRT-107SPRT80393/html/CPRT-107SPRT80393.htm), we identified Enron executives linked to the investigation who we identified as persons of interest based on their role in the congressional investigation.
+<!-- Will add table later with more time, for now commenting this section out -->
+<!-- Name | Connection to Enron | Enron Investigation
 :-- | :-- | :---
-Name | Role at Enron | Investigated/indicted/fired
+Name | Role at Enron | Investigated/indicted/fired -->
 
 # Data Science Pipeline 
 ## Planning
@@ -93,13 +97,24 @@ Only 1.08% emails sent from a Person of Interest -->
 We used the `BERTopic` algorithm for topic modeling and looked at common topics for all emails from persons of interest by year, from 2000 to 2002. Initially, we planned to include 1999 but there were not enough emails for that year to generate topics from this algorithm. 
 
 ## Conclusions
-If we had more time:
+### Key Takeways
+- Sentiment analysis of this nature (positive/negative or subject/objective) is not useful when looking at corporate, professional communications
+> Better use cases: general public sentiment (e.g. social media analysis or insights from [anonymous] employee surveys, where communication is more informal)
+
+- Topic modeling can provide early insights in investigative inquiries, by finding patterns in keywords and grouping similar themes. 
+
+### Recommendations
+#### I. Lessons in Corporate Communication
+Something that Enron did very well was communicate. Hindsight is 20/20 and while we certainly do not agree with misrepresenting financial reports or hiding corporate losses it is clear from the official investigations and from our analysis that many employees were completely unaware of the wrongdoing within the company. Even at the worst of times, official corporate communications mainatined a nuetral and professional tone. 
+
+#### II. Tranparency, accountability, and monitoring (early)
+We recommend companies have systems in place that can track reports of suspicious activity as well as checks and balances for accountability. Many of the financial regulations mandates this kind of transparency and accoutability, but we also recommend using exploratory analysis and this kind of topic modeling, regularly (i.e. employee satisfaction surveys, recommendation and feedback requests, etc.) to track them and highlight vulnerabilities early, before they become major problems.
+
+### If we had more time:
 - Scale x3 sentiment scores
-- Explore Nulls
 - Explore Word Frequency Analysis with Email Subject
 - Explore email recipients
 - Explore and model with non-POI and POI emails (not just POI)
-- Bin intensity, polarity, and subjectivity scores
 - Explore clustering with the three different measures for sentiment
 - Explore variables related to persons of interest, such as tenure with the company, salary, and investigation outcome
 
@@ -122,15 +137,13 @@ Bertopic, Topic Modeling | `from bertopic import BERTopic` | https://pypi.org/pr
 ## Project Files
 file_name | Description | Location
 :-- | :-- | :--
-`00-raw_data.csv` | raw project data | [Dropbox Folder](https://accenturefs.recsolu.com/app/collect/form/ADj2sD6o5JC6bzMuRVEKXA)
-`01-clean_data` | cleaned and prepared data | [Dropbox Folder](https://accenturefs.recsolu.com/app/collect/form/ADj2sD6o5JC6bzMuRVEKXA)
-`02-ts_data.csv` | time series data | [Dropbox Folder](https://accenturefs.recsolu.com/app/collect/form/ADj2sD6o5JC6bzMuRVEKXA)
-`03-poi_99to22.csv` | clean data - poi only from 99' to 02'| [Dropbox Folder](https://accenturefs.recsolu.com/app/collect/form/ADj2sD6o5JC6bzMuRVEKXA)
-`final_report.ipynb` | final report notebook | Github repo
-presentation | slideshow presentation | Google Slides
-`wrangle.py` | acquire, clean, and prepare functions | Github repo
-`explore.py` | Uni, Bi, and Multivariate explore functions | Github repo
-`model.py` | Topic Modeling functions | Github repo
+`enron_presentation.mp4` | video recording | [Dropbox](https://www.dropbox.com/s/qjb2shljg3c4dlz/enron_presentation.mp4?dl=0)
+`00-raw_emails.csv` | raw project data | [Dropbox](https://www.dropbox.com/s/68kxcc9bt5skrcl/00_raw_emails.csv.zip?dl=0)
+`01-wrangle_df` | cleaned and prepared data | [Dropbox](https://www.dropbox.com/home/Enron-NLP_Capstone)
+`02-time_series_df.csv` | time series data | [Dropbox](https://www.dropbox.com/s/mhh93ol0zwrx7zt/02_time_series_df.csv.zip?dl=0)
+`03-poi.csv` | clean data - poi only | [Dropbox](https://www.dropbox.com/s/y08c4yrzw7ztici/03-poi.csv?dl=0)
+`final_report.ipynb` and modules | final report notebook | Github repo --> [main folder](https://github.com/Enron-Discussion-NLP/Capstone)
+`enron_slides` | Slideshow Presentation | [Google Slides](https://docs.google.com/presentation/d/1KM1KkuBkSML_DybBiUxNsKrx8HXkyizbOgJVOqnNruI/edit?usp=sharing)
 
 # References and Citations
 Bert topic model:
