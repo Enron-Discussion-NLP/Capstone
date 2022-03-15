@@ -169,3 +169,7 @@ Data Source
 Congressional Report on the Role of Enron Board of Directors in Enron's Collapse 
 >https://www.govinfo.gov/content/pkg/CPRT-107SPRT80393/html/CPRT-107SPRT80393.htm
 
+News Ticker Presentation Graphic
+> Slidesgo Template<br><i>Template modified according to usage agreement</i>
+
+
