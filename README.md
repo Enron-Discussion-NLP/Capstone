@@ -8,7 +8,7 @@
 # About the Project
 In this unsupervised machine learning project we explored a corpus of over 500k Enron employee emails from ~150 unique users, mostly in senior management. 
 <br><br>
-Click [here]() to check out the video recording where we present our project process and findings!
+Click [here](https://www.dropbox.com/s/qjb2shljg3c4dlz/enron_presentation.mp4?dl=0) to check out the video recording where we present our project process and findings!
 <!-- and analyzing Enron employee emails. We are using topic modeling, sentiment analysis, and time series analysis to identify trends in communication themes over time. For our MVP we are looking at a corpus of 5,575 emails sent by people of interest, as identified by the official congressional report on the role of Enron's board of directors (https://bit.ly/3Hjz5rI) on the collapse of the company.  -->
 
 ## Background
